@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RupeeRadar</title>
+<style>
+:root{--d:#0b3d33;--m:#14624f;--l:#e6f2ed;--g:#f2a516;--r:#d64545}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:var(--l);color:#17302b}
+.page{display:none;min-height:100vh}
+.page.active{display:block}
+.btn{background:var(--g);color:var(--d);border:0;border-radius:8px;padding:12px 24px;font-weight:bold;font-size:1rem;cursor:pointer}
+.btn.dark{background:var(--d);color:#fff;width:100%;margin-top:10px}
+label{display:block;font-weight:bold;font-size:.9rem;margin:12px 0 4px}
+input,select{width:100%;padding:10px;border:2px solid #b9d3c9;border-radius:8px;font-size:1rem}
+input.bad{border-color:var(--r)}
+.err{color:var(--r);font-size:.82rem;min-height:1.1em}
+.reg{display:flex;flex-wrap:wrap;min-height:100vh}
+.brand{flex:1 1 320px;background:var(--d);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.brand h1{font-size:2.2rem;margin:20px 0 8px}
+.brand span,.logo span{color:var(--g)}
+.side{flex:1 1 380px;display:flex;justify-content:center;align-items:center;padding:24px}
+.box{width:100%;max-width:380px}
+.box h2{color:var(--d);font-size:1.7rem}
+.radar{width:220px;height:220px;border-radius:50%;border:2px solid var(--g);position:relative;overflow:hidden;background:radial-gradient(circle,transparent 28%,rgba(242,165,22,.5) 29%,transparent 30%),radial-gradient(circle,transparent 58%,rgba(242,165,22,.5) 59%,transparent 60%)}
+.radar::before{content:"";position:absolute;inset:0;background:conic-gradient(rgba(242,165,22,.6),transparent 30%);animation:spin 4s linear infinite}
+.radar::after{content:"₹";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:var(--g)}
+@keyframes spin{to{transform:rotate(360deg)}}
+header{background:var(--d);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.logo{color:#fff;font-size:1.5rem;font-weight:bold}
+nav button{background:none;border:0;color:#fff;font-size:1rem;margin-left:14px;cursor:pointer}
+nav button:hover{color:var(--g)}
+.hero{background:var(--d);color:#fff;padding:50px 24px 70px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:40px}
+.hero div{max-width:440px}
+.hero h1{font-size:2.6rem;line-height:1.15;margin-bottom:14px}
+.hero p{margin-bottom:24px}
+.wrap{max-width:960px;margin:0 auto;padding:40px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:20px}
+.card{background:#fff;padding:22px;border-radius:12px;border-left:6px solid var(--g)}
+.card h3{color:var(--d);margin-bottom:8px}
+.ring{--p:0;--c:var(--m);width:190px;height:190px;border-radius:50%;margin:10px auto;background:conic-gradient(var(--c) calc(var(--p)*1%),#dbe9e3 0);display:flex;align-items:center;justify-content:center}
+.ring div{width:140px;height:140px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring strong{font-size:1.4rem;color:var(--d)}
+.msg{padding:10px;border-radius:8px;background:var(--l);text-align:center;font-size:.9rem}
+.item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e3eee9}
+.item button{background:none;border:0;color:var(--r);cursor:pointer;margin-left:8px}
+footer{background:var(--d);color:#fff;text-align:center;padding:18px}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: REGISTRATION (shows first) -->
+<section class="page active" id="p-reg">
+ <div class="reg">
+  <div class="brand">
+   <div class="radar"></div>
+   <h1>Rupee<span>Radar</span></h1>
+   <p>Create your free account to scan your spending.</p>
+  </div>
+  <div class="side"><div class="box">
+   <h2>Create your account</h2>
+   <label>Full name</label><input id="name" placeholder="Priya Kumar"><div class="err" id="e-name"></div>
+   <label>Email</label><input id="email" placeholder="you@example.com"><div class="err" id="e-email"></div>
+   <label>Mobile number</label><input id="phone" maxlength="10" placeholder="10 digits"><div class="err" id="e-phone"></div>
+   <label>Monthly budget (₹)</label><input id="budget" type="number" placeholder="20000"><div class="err" id="e-budget"></div>
+   <label>Password</label><input id="pass" type="password" placeholder="At least 6 characters"><div class="err" id="e-pass"></div>
+   <label><input type="checkbox" id="terms" style="width:auto"> I agree to the terms</label><div class="err" id="e-terms"></div>
+   <div class="err" id="e-all" style="font-weight:bold"></div>
+   <button class="btn dark" id="regBtn">Register</button>
+  </div></div>
+ </div>
+</section>
+
+<!-- PAGE 2: HOME -->
+<section class="page" id="p-home">
+ <header><div class="logo">Rupee<span>Radar</span></div>
+  <nav><span id="who" style="color:#f2a516"></span>
+   <button onclick="go('home')">Home</button>
+   <button onclick="go('dash')">Dashboard</button>
+   <button onclick="logout()">Log out</button></nav></header>
+ <div class="hero">
+  <div><h1 id="hi">Know where every rupee goes.</h1>
+   <p>RupeeRadar tracks your spending and warns you before you overspend.</p>
+   <button class="btn" onclick="go('dash')">Open my dashboard</button></div>
+  <div class="radar"></div>
+ </div>
+ <div class="wrap"><div class="grid">
+  <div class="card"><h3>Track spending</h3>Add daily expenses and see them by category.</div>
+  <div class="card"><h3>Budget ring</h3>The ring fills as you spend.</div>
+  <div class="card"><h3>Early warning</h3>Get a warning at 80% of your budget.</div>
+ </div></div>
+ <footer>&copy; 2026 RupeeRadar</footer>
+</section>
+
+<!-- PAGE 3: DASHBOARD -->
+<section class="page" id="p-dash">
+ <header><div class="logo">Rupee<span>Radar</span></div>
+  <nav><button onclick="go('home')">Home</button>
+   <button onclick="go('dash')">Dashboard</button>
+   <button onclick="logout()">Log out</button></nav></header>
+ <div class="wrap">
+  <h2>Your spending radar</h2>
+  <div class="grid">
+   <div class="card"><h3>Budget used</h3>
+    <div class="ring" id="ring"><div><strong id="left">₹0</strong><small id="of"></small></div></div>
+    <div class="msg" id="msg"></div></div>
+   <div class="card"><h3>Add an expense</h3>
+    <label>What did you buy?</label><input id="title" placeholder="Tea and snacks">
+    <label>Amount (₹)</label><input id="amt" type="number" placeholder="50">
+    <label>Category</label>
+    <select id="cat"><option>Food</option><option>Travel</option><option>Shopping</option><option>Bills</option><option>Other</option></select>
+    <div class="err" id="e-exp"></div>
+    <button class="btn dark" id="addBtn">Add expense</button></div>
+   <div class="card"><h3>Recent expenses</h3><div id="list"></div></div>
+  </div>
+ </div>
+</section>
+
+<script>
+var user = null;      // the registered person (empty until Register works)
+var list = [];        // all expenses
+
+function $(id) { return document.getElementById(id); }
+function rs(n) { return "₹" + Number(n).toLocaleString("en-IN"); }
+
+// Show one page. THE LOCK: without a user, only the registration page opens.
+function go(page) {
+  if (!user) page = "reg";
+  var all = document.querySelectorAll(".page");
+  for (var i = 0; i < all.length; i++) all[i].classList.remove("active");
+  $("p-" + page).classList.add("active");
+  window.scrollTo(0, 0);
+  if (user) {
+    var first = user.name.split(" ")[0];
+    $("who").textContent = first;
+    $("hi").textContent = "Welcome, " + first + ". Know where every rupee goes.";
+  }
+  if (page === "dash") draw();
+}
+
+function logout() {
+  user = null; list = [];
+  var boxes = document.querySelectorAll("#p-reg input");
+  for (var i = 0; i < boxes.length; i++) { boxes[i].value = ""; boxes[i].checked = false; }
+  go("reg");
+}
+
+// Put an error message under a box
+function bad(field, text) {
+  $("e-" + field).textContent = text;
+  if ($(field)) $(field).className = text ? "bad" : "";
+  return text !== "";
+}
+
+// REGISTER BUTTON
+$("regBtn").onclick = function () {
+  var name = $("name").value.trim();
+  var email = $("email").value.trim();
+  var phone = $("phone").value.trim();
+  var budget = Number($("budget").value);
+  var pass = $("pass").value;
+  var problems = 0;
+
+  if (bad("name", name.length < 2 ? "Enter your full name." : "")) problems++;
+  if (bad("email", /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "" : "Enter a valid email.")) problems++;
+  if (bad("phone", /^[0-9]{10}$/.test(phone) ? "" : "Enter a 10-digit mobile number.")) problems++;
+  if (bad("budget", budget > 0 ? "" : "Enter your monthly budget.")) problems++;
+  if (bad("pass", pass.length >= 6 ? "" : "Password needs 6 or more characters.")) problems++;
+  if (bad("terms", $("terms").checked ? "" : "Please accept the terms.")) problems++;
+
+  if (problems > 0) {
+    $("e-all").textContent = "Please fix the red messages, then press Register again.";
+    return;
+  }
+  $("e-all").textContent = "";
+  user = { name: name, budget: budget };   // registration done
+  go("home");                              // now the home page opens
+};
+
+// ADD EXPENSE BUTTON
+$("addBtn").onclick = function () {
+  var title = $("title").value.trim();
+  var amount = Number($("amt").value);
+  if (title === "" || !(amount > 0)) {
+    $("e-exp").textContent = "Enter what you bought and an amount above zero.";
+    return;
+  }
+  $("e-exp").textContent = "";
+  list.unshift({ title: title, amount: amount, cat: $("cat").value });
+  $("title").value = "";
+  $("amt").value = "";
+  draw();
+};
+
+function del(i) { list.splice(i, 1); draw(); }
+
+// Redraw the dashboard
+function draw() {
+  if (!user) return;
+  var spent = 0;
+  for (var i = 0; i < list.length; i++) spent += list[i].amount;
+  var pct = Math.min(100, Math.round(spent / user.budget * 100));
+  var left = user.budget - spent;
+
+  $("ring").style.setProperty("--p", pct);
+  $("ring").style.setProperty("--c", pct >= 100 ? "#d64545" : pct >= 80 ? "#f2a516" : "#14624f");
+  $("left").textContent = (left < 0 ? "-" : "") + rs(Math.abs(left));
+  $("of").textContent = "left of " + rs(user.budget);
+
+  if (spent > user.budget) $("msg").textContent = "Over budget by " + rs(spent - user.budget) + ".";
+  else if (pct >= 80) $("msg").textContent = "Careful: " + pct + "% of your budget is used.";
+  else if (list.length === 0) $("msg").textContent = "No spending yet. Add your first expense.";
+  else $("msg").textContent = "You are on track. " + pct + "% used.";
+
+  var html = "";
+  for (var j = 0; j < list.length; j++) {
+    var safe = list[j].title.replace(/</g, "&lt;");
+    html += '<div class="item"><span>' + safe + ' <small>(' + list[j].cat + ')</small></span><span>' +
+            rs(list[j].amount) + '<button onclick="del(' + j + ')">✕</button></span></div>';
+  }
+  $("list").innerHTML = html || "Nothing added yet.";
+}
+
+go("reg");   // the site always starts on the registration page
+</script>
+</body>
+</html>
